@@ -14,13 +14,32 @@ const UserSchema = new Schema({
     type: String
   },
   firstName: {
-    type: String
+    type: String,
+    required: true
   },
   lastName: {
-    type: String
+    type: String,
+    required: true
   },
   password: {
+    type: String,
+    required: true
+  },
+  dob: {
+    type: Date,
+    required: true
+  },
+  avatar: {
+    type: String,
+    default: "https://www.pngitem.com/pimgs/m/524-5246388_anonymous-user-hd-png-download.png"
+  },
+  cover: {
     type: String
+  },
+  role: {
+    type: String,
+    default: 'ROLE_USER',
+    enum: ['ROLE_USER', 'ROLE_ATTORNEY', 'ROLE_ADMIN']
   },
   provider: {
     type: String,
@@ -33,8 +52,13 @@ const UserSchema = new Schema({
   facebookId: {
     type: String
   },
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
+  OTP: { type: String },
+  OTPExpiredTime: { type: Date },
+  verified: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
   updated: {type : Date},
   created: {
     type: Date,
