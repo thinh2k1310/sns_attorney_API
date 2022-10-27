@@ -6,8 +6,8 @@
     "scripts": {
         "build": "npm run build:clean && cross-env NODE_ENV=production",
         "build:clean": "rimraf ./dist",
-        "start": "cross-env NODE_ENV=development npx nodemon FinalProject",
-        "start:prod": "cross-env NODE_ENV=production node FinalProject",
+        "start": "cross-env NODE_ENV=development npx nodemon server",
+        "start:prod": "cross-env NODE_ENV=production node server",
         "start:production": "npm run build && npm run start:prod",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -26,12 +26,14 @@
         "compression": "^1.7.4",
         "connect-history-api-fallback": "^1.6.0",
         "cors": "^2.8.5",
+        "cross-env": "^7.0.3",
         "crypto-js": "^4.1.1",
         "dotenv": "^16.0.0",
         "express": "^4.17.3",
         "express-session": "^1.17.2",
         "form-data": "^4.0.0",
         "helmet": "^5.0.2",
+        "heroku": "^7.65.0",
         "jsonwebtoken": "^8.5.1",
         "mailgun.js": "^8.0.1",
         "mongodb": "^4.5.0",
@@ -48,7 +50,6 @@
     "devDependencies": {
         "chalk": "^2.4.2",
         "copy-webpack-plugin": "^10.2.4",
-        "cross-env": "^7.0.3",
         "dotenv-webpack": "^7.1.0",
         "morgan": "^1.10.0",
         "nodemon": "^2.0.20",
