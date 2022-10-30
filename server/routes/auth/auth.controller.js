@@ -19,14 +19,14 @@ async function login(req, res) {
         const { email, password } = req.body;
 
         if (!email) {
-            return res.status(400).json({
+            return res.status(200).json({
                 success: false,
                 message: 'You must enter an email address.',
             });
         }
 
         if (!password) {
-            return res.status(400).json({
+            return res.status(200).json({
                 success: false,
                 message: 'You must enter a password.',
             });
@@ -35,7 +35,7 @@ async function login(req, res) {
         const user = await User.findOne({ email: email, verified: true });
         if (!user) {
             return res
-                .status(400)
+                .status(200)
                 .json({
                     success: false,
                     message: 'No user found for this email address.',
@@ -45,9 +45,9 @@ async function login(req, res) {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch == false) {
-            return res.status(400).json({
+            return res.status(200).json({
                 success: false,
-                message: 'Password incorrect',
+                message: 'Incorrect password',
             });
         }
 
@@ -184,7 +184,7 @@ async function validateWithOTP(req, res) {
                 verified: false
             })
         if (!validatedUser) {
-            return res.status(400).json({
+            return res.status(200).json({
                 success: false,
                 message: 'Your email address is not found.'
             });
@@ -197,7 +197,7 @@ async function validateWithOTP(req, res) {
                 verified: false
             })
         if (!validatedUser) {
-            return res.status(422).json({
+            return res.status(200).json({
                 success: false,
                 message: 'Your token has expired. Please attempt to reset your password again.'
             });
@@ -223,7 +223,7 @@ async function forgotPassword(req, res) {
 
         if (!email) {
             return res
-                .status(400)
+                .status(200)
                 .json({
                     success: false,
                     error: 'You must enter an email address.'
@@ -234,7 +234,7 @@ async function forgotPassword(req, res) {
 
         if (!existingUser) {
             return res
-                .status(400)
+                .status(200)
                 .json({
                     success: false,
                     message: 'No user found for this email address.'
@@ -281,7 +281,7 @@ async function resetPasswordWithOTP(req, res) {
                 OTPExpiredTime: { $gt: Date.now() }
             })
         if (!resetUser) {
-            return res.status(422).json({
+            return res.status(200).json({
                 success: false,
                 message: 'Your OTP has expired. Please attempt to resend yout OTP again.'
             });
@@ -342,7 +342,7 @@ async function changePassword(req, res) {
 
         if (!isMatch) {
             return res
-                .status(400)
+                .status(200)
                 .json({
                     success: false,
                     message: 'Please enter your correct old password.'
