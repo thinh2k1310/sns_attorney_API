@@ -56,9 +56,22 @@ function resetEmail(user, otp){
     return message;
   }
 
+  function sendOTP(user){
+    const message = {
+      subject: 'Verify Your OTP',
+      text: 
+        `Your OTP is: ${user.OTP}\n\n` + 
+        `Sincerely,\n\n` +
+        `Customer Service.`
+    };
+  
+    return message;
+  }
+
   module.exports = {
       resetEmail,
       confirmResetPasswordEmail,
       signupEmail,
-      validateOTP
+      validateOTP,
+      sendOTP
   }

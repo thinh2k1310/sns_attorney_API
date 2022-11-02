@@ -67,7 +67,6 @@ async function login(req, res) {
             data: user
         });
     } catch (error) {
-        console.log(error);
         res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
@@ -124,10 +123,11 @@ async function register(req, res) {
 
         if (existingUser) {
             return res
-                .status(400)
+                .status(200)
                 .json({
                     success: false,
-                    message: 'This email address is already in use.'
+                    message: 'This email address is already in use.',
+                    isUniqueEmail: false
                 });
         }
 
@@ -177,12 +177,19 @@ async function register(req, res) {
 
 async function validateWithOTP(req, res) {
     try {
-        const { email, OTP } = req.body;
+        const { email, OTP, isUser } = req.body;
         var validatedUser = await User.findOne(
             {
                 email: email,
                 verified: false
             })
+        if (isUser) {
+            validatedUser = await User.findOne(
+                {
+                    email: email,
+                    verified: true
+                })
+        }
         if (!validatedUser) {
             return res.status(200).json({
                 success: false,
@@ -192,14 +199,17 @@ async function validateWithOTP(req, res) {
         validatedUser = await User.findOne(
             {
                 email: email,
-                OTP: OTP,
-                OTPExpiredTime: { $gt: Date.now() },
-                verified: false
+                OTP: OTP
             })
         if (!validatedUser) {
             return res.status(200).json({
                 success: false,
-                message: 'Your token has expired. Please attempt to reset your password again.'
+                message: 'Incorrect OTP. Please try again'
+            });
+        }else if (validatedUser.OTPExpiredTime < Date.now()) {
+            return res.status(200).json({
+                success: false,
+                message: 'Your OTP is expired. Please attempt to resend new OTP email'
             });
         } else {
             await User.findOneAndUpdate({ email: email }, { verified: true, OTP: undefined, OTPExpiredTime: undefined }, {
@@ -208,6 +218,51 @@ async function validateWithOTP(req, res) {
             res.status(200).json({
                 success: true,
                 message: `Email has been validated successfully`,
+            });
+        }
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: 'Your request could not be processed. Please try again.'
+        });
+    }
+}
+
+async function sendOTP(req, res) {
+    try {
+        const { email } = req.body;
+        var validatedUser = await User.findOne(
+            {
+                email: email
+            })
+        if (!validatedUser) {
+            return res.status(200).json({
+                success: false,
+                message: 'Your email address is not found.'
+            });
+        }
+
+        const buffer = crypto.randomBytes(3);
+        const hex = buffer.toString('hex');
+        const OTP = parseInt(hex, 16).toString().slice(0, 6);
+        OTPExpiredTime = Date.now() + 300000;
+        const updatedUser = await User.updateOne({email: email}, {OTP: OTP, OTPExpiredTime: OTPExpiredTime})
+        const user = await User.findOne({ email: email })
+        if (!updatedUser) {
+            return res.status(200).json({
+                success: false,
+                message: 'Could not resend you OTP. Please try again later.'
+            });
+        } else {
+            await mailgun.sendEmail(
+                user.email,
+                'sendOTP',
+                user
+            );
+
+            res.status(200).json({
+                success: true,
+                message: `Please check you email for OTP.`,
             });
         }
     } catch (error) {
@@ -249,7 +304,6 @@ async function forgotPassword(req, res) {
         existingUser.OTPExpiredTime = Date.now() + 300000;
         const timeElapsed = Date.now();
         const today = new Date(timeElapsed);
-        console.log(today.toISOString());
         await existingUser.save();
 
         await mailgun.sendEmail(
@@ -263,7 +317,6 @@ async function forgotPassword(req, res) {
             message: 'Please check your email to reset your password.'
         });
     } catch (error) {
-        console.log(error);
         res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
@@ -274,7 +327,6 @@ async function forgotPassword(req, res) {
 async function resetPasswordWithOTP(req, res) {
     try {
         const OTP = req.body.OTP;
-        console.log(OTP);
         const resetUser = await User.findOne(
             {
                 OTP: OTP,
@@ -376,5 +428,6 @@ module.exports = {
     validateWithOTP,
     forgotPassword,
     resetPasswordWithOTP,
-    changePassword
+    changePassword,
+    sendOTP
 }

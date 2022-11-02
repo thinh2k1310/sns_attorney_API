@@ -13,6 +13,8 @@ authRouter.post('/register', authController.register);
 
 authRouter.put('/validate', authController.validateWithOTP);
 
+authRouter.put('/sendOTP', authController.sendOTP)
+
 authRouter.post('/password/forgot',authController.forgotPassword);
 
 authRouter.put('/password/reset/',authController.resetPasswordWithOTP);

@@ -61,6 +61,10 @@ const prepareTemplate = (type, data) => {
     case 'validate':
       message = template.validateOTP(data);
       break;
+
+    case 'sendOTP':
+      message = template.sendOTP(data);
+      break;
         
     default:
       message = '';
