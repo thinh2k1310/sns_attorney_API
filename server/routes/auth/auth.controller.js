@@ -212,9 +212,7 @@ async function validateWithOTP(req, res) {
                 message: 'Your OTP is expired. Please attempt to resend new OTP email'
             });
         } else {
-            await User.findOneAndUpdate({ email: email }, { verified: true, OTP: undefined, OTPExpiredTime: undefined }, {
-                new: true
-            });
+            await User.updateOne({ email: email}, { verified: true, OTP: null, OTPExpiredTime: null });
             res.status(200).json({
                 success: true,
                 message: `Email has been validated successfully`,
@@ -324,26 +322,17 @@ async function forgotPassword(req, res) {
     }
 }
 
-async function resetPasswordWithOTP(req, res) {
+async function resetPassword(req, res) {
     try {
-        const OTP = req.body.OTP;
+        const email = req.body.email;
         const resetUser = await User.findOne(
             {
-                OTP: OTP,
-                OTPExpiredTime: { $gt: Date.now() }
-            })
-        if (!resetUser) {
-            return res.status(200).json({
-                success: false,
-                message: 'Your OTP has expired. Please attempt to resend yout OTP again.'
+                email: email
             });
-        }
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(req.body.password, salt);
 
         resetUser.password = hash;
-        resetUser.OTP = undefined;
-        resetUser.OTPExpiredTime = undefined;
 
         await resetUser.save();
 
@@ -427,7 +416,7 @@ module.exports = {
     register,
     validateWithOTP,
     forgotPassword,
-    resetPasswordWithOTP,
+    resetPassword,
     changePassword,
     sendOTP
 }

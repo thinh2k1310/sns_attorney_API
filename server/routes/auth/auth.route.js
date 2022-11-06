@@ -17,7 +17,7 @@ authRouter.put('/sendOTP', authController.sendOTP)
 
 authRouter.post('/password/forgot',authController.forgotPassword);
 
-authRouter.put('/password/reset/',authController.resetPasswordWithOTP);
+authRouter.put('/password/reset/',authController.resetPassword);
 
 authRouter.put('/password/change',auth,authController.changePassword);
 
