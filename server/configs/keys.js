@@ -18,6 +18,11 @@ module.exports = {
       key: process.env.MAILGUN_KEY,
       domain: process.env.MAILGUN_DOMAIN,
       url: process.env.MAILGUN_URL,
+    },
+    cloudinary:{
+      name : process.env.CLOUD_NAME,
+      key:  process.env.CLOUDINARY_API_KEY,
+      secret: process.env.CLOUDINARY_SECRET_KEY,
     }
   };
   
