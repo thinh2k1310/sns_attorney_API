@@ -41,6 +41,15 @@ const UserSchema = new Schema({
     default: 'ROLE_USER',
     enum: ['ROLE_USER', 'ROLE_ATTORNEY', 'ROLE_ADMIN']
   },
+  address: {
+    type: String,
+  },
+  degree: [{
+    type: String
+  }],
+  summary: {
+    type: String
+  },
   provider: {
     type: String,
     required: true,

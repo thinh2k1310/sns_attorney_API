@@ -22,7 +22,7 @@ const PostSchema = new Schema({
     type: String,
     required: true,
     default: 'DISCUSSING',
-    enum: ['DISCUSSING, REQUESTING']
+    enum: ['DISCUSSING', 'REQUESTING']
   },
   updated: {type : Date},
   created: {
