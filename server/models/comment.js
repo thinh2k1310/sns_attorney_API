@@ -4,12 +4,12 @@ const { Schema } = Mongoose;
 
 // Comment Schema
 const CommentSchema = new Schema({
-  user : {
+  userId : {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  post : {
+  postId : {
     type: Schema.Types.ObjectId,
     ref: 'Post',
     required: true

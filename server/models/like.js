@@ -4,12 +4,12 @@ const { Schema } = Mongoose;
 
 // Like Schema
 const LikeSchema = new Schema({
-  user : {
+  userId : {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  post : {
+  postId : {
     type: Schema.Types.ObjectId,
     ref: 'Post',
     required: true
