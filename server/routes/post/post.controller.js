@@ -9,6 +9,7 @@ const Mongoose = require('mongoose');
 const Post = require("../../models/post");
 const Comments = require('../../models/comment');
 const Likes = require('../../models/like');
+const User = require('../../models/user');
 
 
 async function createPost(req, res) {
@@ -114,28 +115,14 @@ async function fetchNewsFeed(req, res){
         $addFields: {
           totalComments: { $size: '$comments' }
         }
-      },
-      {
-        $project: {
-          reviews: 0
-        }
       }
     ];
 
-    let postType = null;
     if(type != null ){
-    
-    postType = await Post.find({type : type});
-    const ids = [];
-    postType.forEach(post => {
-     ids.push(post._id)
-   });
       basicQuery.push({
         $match: {
-          _id: {
-            $in: Array.from(ids)
+          type : type
           }
-        }
       });
    }
     let posts = null;
@@ -157,7 +144,7 @@ async function fetchNewsFeed(req, res){
       postsCount = await Post.aggregate(basicQuery);
       const paginateQuery = [
         { $sort: sortOrder },
-        { $skip: pageSize * (postsCount.length > 8 ? page - 1 : 0) },
+        { $skip: pageSize * (postsCount.length > pageSize ? page - 1 : 0) },
         { $limit: pageSize }
       ];
       posts = await Post.aggregate(basicQuery.concat(paginateQuery));
