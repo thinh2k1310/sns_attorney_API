@@ -42,39 +42,97 @@ async function createPost(req, res) {
 
     const savedPost = await post.save();
 
-      res.status(200).json({
+    return res.status(200).json({
         success: true,
         message: 'Create post successfully!',
         data: savedPost
       });
   } catch (error) {
     console.log(error);
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: "Your request could not be processed. Please try again.",
     });
   }
 }
 
-async function getDetailPost(req, res) {
+async function getDetailPost(req, res){
   try {
-    const postId = req.params.id;
-    const post = await Post.findById({_id: postId});
-    if (!post) {
-      return res.status(404).json({
+    const postId = Mongoose.Types.ObjectId(req.params.id);
+    const checkPost = await Post.findById(postId);
+    if (!checkPost) {
+      return res.status(200).json({
         success : false,
-        message: 'Can\'t find post with the id'
+        message : "Can't not find any post match with this id"
       });
     }
-    res.status(200).json({
+    const basicQuery = [
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'postId',
+          as: 'likes'
+        }
+      },
+      {
+        $addFields: {
+          totalLikes: { $size: '$likes' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          localField: '_id',
+          foreignField: 'postId',
+          as: 'comments'
+        }
+      },
+      {
+        $addFields: {
+          totalComments: { $size: '$comments' }
+        }
+      },
+      {
+        $match : {
+          _id : postId
+        }
+      },
+      // {
+      //   $unwind : '$comments'
+      // },
+      // {
+      //   $lookup: {
+      //     from: "users",
+      //     localField: "comments.userId",
+      //     foreignField: "_id",
+      //     as: "comments.userId"
+      //   }
+      // },
+      // {
+      //   $group: {
+      //       _id: "$_id",
+      //       comments: {$push: "$comments"}
+      //   }
+      // }
+    ];
+    const post = await Post.aggregate(basicQuery);
+      await Post.populate( post, 
+        {
+          path: 'user',
+          select : '_id firstName lastName avatar role',
+        });
+        await Post.populate( post, 'userId');
+        return res.status(200).json({
       success : true,
       data : post
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({
-      success: false,
-      message: "Your request could not be processed. Please try again.",
+    return res.status(400).json({
+      success : false,
+      data : null,
+      message : 'Your request could not be processed. Please try again.'
     });
   }
 }
@@ -155,7 +213,7 @@ async function fetchNewsFeed(req, res){
         });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success : true,
       data : {
       posts,
@@ -166,7 +224,7 @@ async function fetchNewsFeed(req, res){
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({
+    return res.status(400).json({
       success : false,
       data : null,
       message : 'Your request could not be processed. Please try again.'

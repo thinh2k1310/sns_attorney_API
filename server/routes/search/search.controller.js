@@ -72,7 +72,7 @@ async function searchAll(req, res){
         users = await User.find({$or: [ {firstName : {$regex : `${searchText}`, $options: 'i'} }, {lastName : {$regex : `${searchText}`, $options: 'i'}} ] }).limit(pageSize);
       }
   
-      res.status(200).json({
+      return res.status(200).json({
         success : true,
         data : {
         posts,
@@ -81,7 +81,7 @@ async function searchAll(req, res){
       });
     } catch (error) {
       console.log(error);
-      res.status(400).json({
+      return res.status(400).json({
         success : false,
         data : null,
         message : 'Your request could not be processed. Please try again.'
@@ -170,7 +170,7 @@ async function searchAll(req, res){
           });
       }
   
-      res.status(200).json({
+      return res.status(200).json({
         success : true,
         data : {
         posts,
@@ -181,7 +181,7 @@ async function searchAll(req, res){
       });
     } catch (error) {
       console.log(error);
-      res.status(400).json({
+      return res.status(400).json({
         success : false,
         data : null,
         message : 'Your request could not be processed. Please try again.'
@@ -244,7 +244,7 @@ async function searchAll(req, res){
         ];
         users = await User.aggregate(basicQuery.concat(paginateQuery));
       }
-      res.status(200).json({
+      return res.status(200).json({
         success : true,
         data : {
         users,
@@ -255,7 +255,7 @@ async function searchAll(req, res){
       });
     } catch (error) {
       console.log(error);
-      res.status(400).json({
+      return res.status(400).json({
         success : false,
         data : null,
         message : 'Your request could not be processed. Please try again.'

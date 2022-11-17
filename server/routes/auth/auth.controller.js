@@ -60,14 +60,14 @@ async function login(req, res) {
         if (!token) {
             throw new Error('failed to generate login access token');
         }
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "",
             token: token,
             data: user
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });
@@ -163,12 +163,12 @@ async function register(req, res) {
             registeredUser
         );
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Please validate your email"
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });
@@ -213,13 +213,13 @@ async function validateWithOTP(req, res) {
             });
         } else {
             await User.updateOne({ email: email}, { verified: true, OTP: null, OTPExpiredTime: null });
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: `Email has been validated successfully`,
             });
         }
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });
@@ -258,13 +258,13 @@ async function sendOTP(req, res) {
                 user
             );
 
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 message: `Please check you email for OTP.`,
             });
         }
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });
@@ -310,12 +310,12 @@ async function forgotPassword(req, res) {
             existingUser
         );
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Please check your email to reset your password.'
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });
@@ -343,7 +343,7 @@ async function resetPassword(req, res) {
             message: 'Password changed successfully. Please login with your new password.'
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });
@@ -397,13 +397,13 @@ async function changePassword(req, res) {
 
         await mailgun.sendEmail(existingUser.email, 'reset-confirmation');
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message:
                 'Password changed successfully. Please login with your new password.'
         });
     } catch (error) {
-        res.status(400).json({
+        return tus(400).json({
             success: false,
             message: 'Your request could not be processed. Please try again.'
         });

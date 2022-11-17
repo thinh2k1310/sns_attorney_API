@@ -16,14 +16,14 @@ async function commentPost(req, res) {
         });
         const success = await comment.save();
         if (success != null) {
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 data: success
             });
         }
     } catch (error) {
         console.log(error);
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: "Your request could not be processed. Please try again.",
         });
@@ -37,13 +37,13 @@ async function deleteComment(req, res) {
         const success = await Comment.deleteOne({_id : commentId});
 
         if (success != null) {
-            res.status(200).json({
+            return res.status(200).json({
                 success: true
             });
         }
     } catch (error) {
         console.log(error);
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: "Your request could not be processed. Please try again.",
         });
@@ -58,13 +58,13 @@ async function editComment(req, res) {
         const success = await Comment.updateOne({_id : commentId} , {content : content});
 
         if (success != null) {
-            res.status(200).json({
+            return res.status(200).json({
                 success: true
             });
         }
     } catch (error) {
         console.log(error);
-        res.status(400).json({
+        return res.status(400).json({
             success: false,
             message: "Your request could not be processed. Please try again.",
         });

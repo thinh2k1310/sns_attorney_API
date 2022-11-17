@@ -17,7 +17,7 @@ async function likePost(req, res) {
             });
             const success = await like.save();
             if (success != null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     data: {like : true}
                   });
@@ -25,7 +25,7 @@ async function likePost(req, res) {
         } else {
             const success = await Like.deleteOne({ _id: isLiked._id});
             if (success != null) {
-                res.status(200).json({
+                return res.status(200).json({
                     success: true,
                     data: {like : false}
                   });
@@ -33,7 +33,7 @@ async function likePost(req, res) {
         }
     } catch (error) {
       console.log(error);
-      res.status(400).json({
+      return res.status(400).json({
       success: false,
       message: "Your request could not be processed. Please try again.",
     });

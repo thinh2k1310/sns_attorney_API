@@ -11,13 +11,13 @@ async function updateUserProfile(req, res){
       new: true
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Your profile is successfully updated!',
       data: userDoc
     });
   } catch (error) {
-    res.status(400).json({
+    return res.status(400).json({
       error: 'Your request could not be processed. Please try again. error: ' + error
     });
   }
@@ -28,12 +28,12 @@ async function getProfile(req, res){
       const userId = req.body.id;
       const userDoc = await User.findById(userId);
   
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: userDoc
       });
     } catch (error) {
-      res.status(400).json({
+      return res.status(400).json({
         error: 'Your request could not be processed. Please try again.'
       });
     }
