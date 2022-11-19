@@ -215,12 +215,12 @@ async function fetchNewsFeed(req, res){
 
     return res.status(200).json({
       success : true,
-      data : {
-      posts,
-      totalPosts: postsCount.length,
-      page,
-      pages: postsCount.length > 0 ? Math.ceil(postsCount.length / pageSize) : 0
-      }
+      metadata : {
+        total: postsCount.length,
+        page,
+        pages: postsCount.length > 0 ? Math.ceil(postsCount.length / pageSize) : 0
+      },
+      data : posts
     });
   } catch (error) {
     console.log(error);

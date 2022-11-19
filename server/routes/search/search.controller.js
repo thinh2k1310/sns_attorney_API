@@ -74,10 +74,8 @@ async function searchAll(req, res){
   
       return res.status(200).json({
         success : true,
-        data : {
-        posts,
-        users
-        }
+        posts: posts,
+        users: users
       });
     } catch (error) {
       console.log(error);
@@ -172,12 +170,12 @@ async function searchAll(req, res){
   
       return res.status(200).json({
         success : true,
-        data : {
-        posts,
-        totalPosts: postsCount.length,
-        page,
-        pages: postsCount.length > 0 ? Math.ceil(postsCount.length / pageSize) : 0
-        }
+        metadata : {
+          total: postsCount.length,
+          page,
+          pages: postsCount.length > 0 ? Math.ceil(postsCount.length / pageSize) : 0
+        },
+        data : posts
       });
     } catch (error) {
       console.log(error);
@@ -246,12 +244,12 @@ async function searchAll(req, res){
       }
       return res.status(200).json({
         success : true,
-        data : {
-        users,
-        totalUsers: usersCount.length,
-        page,
-        pages: usersCount.length > 0 ? Math.ceil(usersCount.length / pageSize) : 0
-        }
+        metadata : {
+          total: usersCount.length,
+          page,
+          pages: usersCount.length > 0 ? Math.ceil(usersCount.length / pageSize) : 0
+        },
+        data : users
       });
     } catch (error) {
       console.log(error);
