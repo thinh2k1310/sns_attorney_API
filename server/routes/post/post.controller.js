@@ -125,7 +125,7 @@ async function getDetailPost(req, res){
         await Post.populate( post, 'userId');
         return res.status(200).json({
       success : true,
-      data : post
+      data : post[0]
     });
   } catch (error) {
     console.log(error);
