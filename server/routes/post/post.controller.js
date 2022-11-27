@@ -7,8 +7,8 @@ const unlinkAsync = promisify(fs.unlink)
 const Mongoose = require('mongoose');
 //Model 
 const Post = require("../../models/post");
-const Comments = require('../../models/comment');
-const Likes = require('../../models/like');
+const Comment = require('../../models/comment');
+const Like = require('../../models/like');
 const User = require('../../models/user');
 
 
@@ -32,21 +32,21 @@ async function createPost(req, res) {
     }
     await unlinkAsync(req.files[0].path);
 
-    const post = new Post ({
-        user,
-        content,
-        mediaUrl,
-        mediaId,
-        type
+    const post = new Post({
+      user,
+      content,
+      mediaUrl,
+      mediaId,
+      type
     });
 
     const savedPost = await post.save();
 
     return res.status(200).json({
-        success: true,
-        message: 'Create post successfully!',
-        data: savedPost
-      });
+      success: true,
+      message: 'Create post successfully!',
+      data: savedPost
+    });
   } catch (error) {
     console.log(error);
     return res.status(400).json({
@@ -56,14 +56,65 @@ async function createPost(req, res) {
   }
 }
 
-async function getDetailPost(req, res){
+async function updatePost(req,res) {
+  try {
+    const postId = req.params.id;
+    const content = req.body.content;
+    const updatedPost = await Post.updateOne({_id: postId}, { content: content });
+    if (!updatedPost) {
+      return res.status(200).json({
+        success: false,
+        message: 'Can not update the post'
+      });
+    }
+    const newPost = await Post.findOne({_id: postId});
+    return res.status(200).json({
+      success: true,
+      message: 'Update post successfully!',
+      data: newPost
+    });
+    
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      message: 'Your request could not be processed. Please try again.'
+    });
+  }
+}
+
+async function deletePost(req,res) {
+  try {
+    const postId = req.params.id;
+    const deletedPost = await Post.deleteOne({_id: postId});
+    if (!deletedPost) {
+      return res.status(200).json({
+        success: false,
+        message: 'Can not delete the post'
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'Delete post successfully!'
+    });
+    
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      data: null,
+      message: 'Your request could not be processed. Please try again.'
+    });
+  }
+}
+
+async function getDetailPost(req, res) {
   try {
     const postId = Mongoose.Types.ObjectId(req.params.id);
     const checkPost = await Post.findById(postId);
     if (!checkPost) {
       return res.status(200).json({
-        success : false,
-        message : "Can't not find any post match with this id"
+        success: false,
+        message: "Can't not find any post match with this id"
       });
     }
     const basicQuery = [
@@ -94,8 +145,8 @@ async function getDetailPost(req, res){
         }
       },
       {
-        $match : {
-          _id : postId
+        $match: {
+          _id: postId
         }
       },
       // {
@@ -117,27 +168,27 @@ async function getDetailPost(req, res){
       // }
     ];
     const post = await Post.aggregate(basicQuery);
-      await Post.populate( post, 
-        {
-          path: 'user',
-          select : '_id firstName lastName avatar role',
-        });
-        await Post.populate( post, 'userId');
-        return res.status(200).json({
-      success : true,
-      data : post[0]
+    await Post.populate(post,
+      {
+        path: 'user',
+        select: '_id firstName lastName avatar role',
+      });
+    await Post.populate(post, 'userId');
+    return res.status(200).json({
+      success: true,
+      data: post[0]
     });
   } catch (error) {
     console.log(error);
     return res.status(400).json({
-      success : false,
-      data : null,
-      message : 'Your request could not be processed. Please try again.'
+      success: false,
+      data: null,
+      message: 'Your request could not be processed. Please try again.'
     });
   }
 }
 
-async function fetchNewsFeed(req, res){
+async function fetchNewsFeed(req, res) {
   try {
     let {
       sortOrder,
@@ -176,13 +227,13 @@ async function fetchNewsFeed(req, res){
       }
     ];
 
-    if(type != null ){
+    if (type != null) {
       basicQuery.push({
         $match: {
-          type : type
-          }
+          type: type
+        }
       });
-   }
+    }
     let posts = null;
     let postsCount = 0;
     if (page == -1) {
@@ -193,11 +244,11 @@ async function fetchNewsFeed(req, res){
         { $limit: pageSize }
       ];
       posts = await Post.aggregate(basicQuery.concat(paginateQuery));
-      await Post.populate( posts, 
-                        {
-                          path: 'user',
-                          select : '_id firstName lastName avatar role',
-                        });
+      await Post.populate(posts,
+        {
+          path: 'user',
+          select: '_id firstName lastName avatar role',
+        });
     } else {
       postsCount = await Post.aggregate(basicQuery);
       const paginateQuery = [
@@ -206,28 +257,55 @@ async function fetchNewsFeed(req, res){
         { $limit: pageSize }
       ];
       posts = await Post.aggregate(basicQuery.concat(paginateQuery));
-      await Post.populate( posts, 
+      await Post.populate(posts,
         {
           path: 'user',
-          select : '_id firstName lastName avatar role',
+          select: '_id firstName lastName avatar role',
         });
     }
 
     return res.status(200).json({
-      success : true,
-      metadata : {
+      success: true,
+      metadata: {
         total: postsCount.length,
         page,
         pages: postsCount.length > 0 ? Math.ceil(postsCount.length / pageSize) : 0
       },
-      data : posts
+      data: posts
     });
   } catch (error) {
     console.log(error);
     return res.status(400).json({
-      success : false,
-      data : null,
-      message : 'Your request could not be processed. Please try again.'
+      success: false,
+      data: null,
+      message: 'Your request could not be processed. Please try again.'
+    });
+  }
+}
+
+async function getPostComments(req, res) {
+  try {
+    const postId = req.params.id;
+    const userId = req.user._id;
+    const comments = await Comment.find({ postId: postId }).populate({
+      path: 'userId',
+      select: '_id lastName firstName avatar'
+    })
+    comments.sort(function(x, y){
+      return x.created - y.created;
+    }).sort(function(x){
+      return x.userId._id == userId;
+    })
+    return res.status(200).json({
+      success: true,
+      data: comments
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      data: null,
+      message: 'Your request could not be processed. Please try again.'
     });
   }
 }
@@ -235,5 +313,8 @@ async function fetchNewsFeed(req, res){
 module.exports = {
   createPost,
   getDetailPost,
-  fetchNewsFeed
+  fetchNewsFeed,
+  getPostComments,
+  deletePost,
+  updatePost
 };

@@ -36,11 +36,16 @@ async function deleteComment(req, res) {
 
         const success = await Comment.deleteOne({_id : commentId});
 
-        if (success != null) {
+        if (!success) {
             return res.status(200).json({
-                success: true
+                success: false,
+                message: "Can not delete the comment"
             });
         }
+        return res.status(200).json({
+            success: true,
+            message: "Delete the comment successfully!"
+        });
     } catch (error) {
         console.log(error);
         return res.status(400).json({
