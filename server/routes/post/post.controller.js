@@ -111,6 +111,7 @@ async function getDetailPost(req, res) {
   try {
     const postId = Mongoose.Types.ObjectId(req.params.id);
     const checkPost = await Post.findById(postId);
+    const userId = req.user._id;
     if (!checkPost) {
       return res.status(200).json({
         success: false,
@@ -149,6 +150,16 @@ async function getDetailPost(req, res) {
           _id: postId
         }
       },
+      {
+        $addFields: {
+          isLikePost: {
+            $in: [
+              userId,
+              '$likes.userId'
+            ]
+          }
+        } 
+      }
       // {
       //   $unwind : '$comments'
       // },
@@ -198,6 +209,7 @@ async function fetchNewsFeed(req, res) {
 
     const pageSize = 10;
     const typeFilter = type ? { type } : {};
+    const userId = req.user._id;
     const basicQuery = [
       {
         $lookup: {
@@ -224,6 +236,16 @@ async function fetchNewsFeed(req, res) {
         $addFields: {
           totalComments: { $size: '$comments' }
         }
+      },
+      {
+        $addFields: {
+          isLikePost: {
+            $in: [
+              userId,
+              '$likes.userId'
+            ]
+          }
+        } 
       }
     ];
 
@@ -263,7 +285,7 @@ async function fetchNewsFeed(req, res) {
           select: '_id firstName lastName avatar role',
         });
     }
-
+    console.log(posts[1].likes);
     return res.status(200).json({
       success: true,
       metadata: {
