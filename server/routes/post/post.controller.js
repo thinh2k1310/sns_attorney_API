@@ -312,7 +312,11 @@ async function getPostComments(req, res) {
     const comments = await Comment.find({ postId: postId }).populate({
       path: 'userId',
       select: '_id lastName firstName avatar'
+    }).populate({
+      path: 'postId',
+      select: '_id user'
     })
+
     comments.sort(function(x, y){
       return x.created - y.created;
     }).sort(function(x){
