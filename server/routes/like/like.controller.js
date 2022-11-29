@@ -19,7 +19,7 @@ async function likePost(req, res) {
             if (success != null) {
                 return res.status(200).json({
                     success: true,
-                    data: {like : true}
+                    like : true
                   });
             }
         } else {
@@ -27,7 +27,7 @@ async function likePost(req, res) {
             if (success != null) {
                 return res.status(200).json({
                     success: true,
-                    data: {like : false}
+                    like: false
                   });
             }
         }
