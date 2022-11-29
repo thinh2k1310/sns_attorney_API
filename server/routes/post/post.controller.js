@@ -239,6 +239,11 @@ async function fetchNewsFeed(req, res) {
       },
       {
         $addFields: {
+          totalReactions: { $sum: ['$totalComments','$totalLikes' ] }
+        }
+      },
+      {
+        $addFields: {
           isLikePost: {
             $in: [
               userId,
@@ -284,8 +289,7 @@ async function fetchNewsFeed(req, res) {
           path: 'user',
           select: '_id firstName lastName avatar role',
         });
-    }
-    console.log(posts[1].likes);
+    } 
     return res.status(200).json({
       success: true,
       metadata: {
