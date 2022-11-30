@@ -159,6 +159,24 @@ async function getDetailPost(req, res) {
             ]
           }
         } 
+      },
+      {
+        $lookup: {
+          from: 'cases',
+          localField: '_id',
+          foreignField: 'post',
+          as: 'cases'
+        }
+      },
+      {
+        $addFields: {
+          isDefendPost: {
+            $in: [
+              userId,
+              '$cases.attorney'
+            ]
+          }
+        } 
       }
       // {
       //   $unwind : '$comments'
@@ -248,6 +266,24 @@ async function fetchNewsFeed(req, res) {
             $in: [
               userId,
               '$likes.userId'
+            ]
+          }
+        } 
+      },
+      {
+        $lookup: {
+          from: 'cases',
+          localField: '_id',
+          foreignField: 'post',
+          as: 'cases'
+        }
+      },
+      {
+        $addFields: {
+          isDefendPost: {
+            $in: [
+              userId,
+              '$cases.attorney'
             ]
           }
         } 

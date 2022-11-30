@@ -18,6 +18,10 @@ const PostSchema = new Schema({
   mediaId: {
     type: String,
   },
+  isBlock: {
+    type: Boolean,
+    default: false
+  },
   type: {
     type: String,
     required: true,

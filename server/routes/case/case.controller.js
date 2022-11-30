@@ -1,10 +1,11 @@
 const Case = require('../../models/case');
 const User = require('../../models/user');
+const Post = require('../../models/post');
 
 
 async function sendDefenceRequest(req,res) {
     try {
-        const attorney = req.user._id;
+        const attorney = req.body.attorneyId;
         const post = req.body.postId;
         const customer = req.body.customerId;
 
@@ -14,11 +15,13 @@ async function sendDefenceRequest(req,res) {
         });
 
         if (check != null) {
+            const deletedRequest = await Case.deleteOne({_id : check._id});
+            if (deletedRequest != null) {
             return res.status(200).json({
-                success: false,
-                message: 'Defence request already sent before',
-                data: check
+                success: true,
+                message: 'Defence request is cancelled',
               });
+            }
         }
         
         const request = new Case ({
@@ -46,20 +49,22 @@ async function sendDefenceRequest(req,res) {
 async function acceptCase(req, res) {
     try {
         const requestId = req.params.requestId;
-        const request = await Case.updateOne({_id: requestId, status: 'SENT_REQUEST'}, {
+        const request = await Case.findOneAndUpdate({_id: requestId, status: 'SENT_REQUEST'}, {
             status: 'IN-PROGRESS',
             startingTime: Date.now()
-        });
-        if (request.modifiedCount == 0) {
+        }, { new : true});
+        if (request == null) {
             return res.status(200).json({
                 success: false,
                 message: "Can not find the defence request",
               });
         }
-            return res.status(200).json({
-                success: true,
-                message: 'Let\' work together!',
-              });
+        await Post.updateOne({_id: request.post}, {isBlock: true});
+        await Case.deleteMany({post: request.post, _id : {$ne: request._id}});
+        return res.status(200).json({
+            success: true,
+            message: 'Let\' work together!',
+        });
     } catch (error) {
         console.log(error);
         return res.status(400).json({
