@@ -29,8 +29,9 @@ async function createPost(req, res) {
       const newPath = await uploader(path);
       mediaUrl = newPath.url;
       mediaId = newPath.id;
+      await unlinkAsync(req.files[0].path);
     }
-    await unlinkAsync(req.files[0].path);
+  
 
     const post = new Post({
       user,
@@ -51,6 +52,7 @@ async function createPost(req, res) {
     console.log(error);
     return res.status(400).json({
       success: false,
+      data: error,
       message: "Your request could not be processed. Please try again.",
     });
   }

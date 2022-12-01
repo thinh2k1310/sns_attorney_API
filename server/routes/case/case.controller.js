@@ -11,7 +11,8 @@ async function sendDefenceRequest(req,res) {
 
         const check = await Case.findOne({
             attorney: attorney,  
-            post: post
+            post: post,
+            status: "SENT_REQUEST"
         });
 
         if (check != null) {
