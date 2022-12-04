@@ -122,7 +122,7 @@ async function getAllDefenceRequests(req, res) {
                                             })
                                             .populate({
                                                 path: 'post',
-                                                select: '_id content'
+                                                select: '_id content user mediaUrl'
                                             })
                                     
         if (requests != null) {
@@ -151,18 +151,19 @@ async function getAllCases(req, res) {
             filter = {customer : userId.toString(), status : { $ne: 'SENT_REQUEST' }}
         }
         const requests = await Case.find(filter)
-                                            .populate({
-                                                path: 'attorney',
-                                                select: '_id lastName firstName avatar'
-                                            })
-                                            .populate({
-                                                path: 'customer',
-                                                select: '_id lastName firstName avatar'
-                                            })
-                                            .populate({
-                                                path: 'post',
-                                                select: '_id content'
-                                            })
+        .populate({
+            path: 'attorney',
+            select: '_id lastName firstName avatar'
+        })
+        .populate({
+            path: 'customer',
+            select: '_id lastName firstName avatar'
+        })
+        .populate({
+            path: 'post',
+            select: '_id content user mediaUrl'
+        })
+
                                     
         if (requests != null) {
             return res.status(200).json({
@@ -182,8 +183,19 @@ async function getAllCases(req, res) {
 async function cancelCase(req, res) {
     try {
         const caseId = req.params.caseId;
-        const updatedCase = await Case.updateOne({_id : caseId}, {
-            status: 'CANCEL'
+        const role = req.user.role;
+        if (role == "ROLE_USER") {
+            await Case.updateOne({_id : caseId}, {
+                customerStatus: 'CANCELLED'
+            });
+        } else if (role == "ROLE_ATTORNEY") {
+            await Case.updateOne({_id : caseId}, {
+                attorneyStatus: 'CANCELLED'
+            });
+        } 
+         const updatedCase = await Case.updateOne({_id : caseId}, {
+            status: 'CANCELLED',
+            endingTime: Date.now()
         });
         if (updatedCase != null) {
             return res.status(200).json({
@@ -203,15 +215,66 @@ async function cancelCase(req, res) {
 async function completeCase(req, res) {
     try {
         const caseId = req.params.caseId;
-        const updatedCase = await Case.updateOne({_id : caseId}, {
-            status: 'COMPLETE'
-        });
+        const role = req.user.role;
+        let updatedCase = null;
+        if (role == "ROLE_USER") {
+            updatedCase = await Case.findOneAndUpdate({_id : caseId}, {
+                customerStatus: 'COMPLETED'
+            }, {new : true});
+        } else if (role == "ROLE_ATTORNEY") {
+            updatedCase = await Case.findOneAndUpdate({_id : caseId}, {
+                attorneyStatus: 'COMPLETED'
+            }, {new : true});
+        } 
+        if (updatedCase.customerStatus == updatedCase.attorneyStatus) {
+            updatedCase = await Case.findOneAndUpdate({_id : caseId}, {
+                status: 'COMPLETED',
+                endingTime: Date.now()
+            }, {new : true});
+        }
         if (updatedCase != null) {
             return res.status(200).json({
                 success: true,
                 message: "The case has been completed"
               });
         }
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            success: false,
+            message: "Your request could not be processed. Please try again.",
+          });
+    }
+}
+
+async function getCaseDetail(req,res) {
+    try {
+        const caseId = req.params.caseId;
+        const detailCase = await Case.findOne({ _id: caseId}).populate({
+            path: 'attorney',
+            select: '_id lastName firstName avatar'
+        })
+        .populate({
+            path: 'customer',
+            select: '_id lastName firstName avatar'
+        })
+        .populate({
+            path: 'post',
+            select: '_id content user mediaUrl'
+        });
+
+
+        if (!detailCase) {
+            return res.status(200).json({
+                success: false,
+                message: "Can't find any case match with id"
+              });
+        }
+        return res.status(200).json({
+            success: true,
+            data: detailCase
+          });
+        
     } catch (error) {
         console.log(error);
         return res.status(400).json({
@@ -228,5 +291,6 @@ module.exports = {
     getAllDefenceRequests,
     getAllCases,
     cancelCase,
-    completeCase
+    completeCase,
+    getCaseDetail
 }

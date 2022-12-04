@@ -15,6 +15,7 @@ caseRouter.get('/request/', auth, caseController.getAllDefenceRequests);
 caseRouter.get('/list', auth, caseController.getAllCases);
 caseRouter.put('/:caseId/cancel', auth, caseController.cancelCase);
 caseRouter.put('/:caseId/complete', auth, role.checkRole(role.ROLES.User), caseController.completeCase);
+caseRouter.get('/:caseId', auth, caseController.getCaseDetail);
 
 
 module.exports = caseRouter;

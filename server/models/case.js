@@ -24,6 +24,16 @@ const CaseSchema = new Schema({
     default: 'SENT_REQUEST',
     enum: ['SENT_REQUEST', 'IN-PROGRESS', 'CANCELLED', 'COMPLETED' ]
   },
+  customerStatus : {
+    type: String,
+    default: 'IN-PROGRESS',
+    enum: ['IN-PROGRESS', 'CANCELLED', 'COMPLETED' ]
+  },
+  attorneyStatus : {
+    type: String,
+    default: 'IN-PROGRESS',
+    enum: ['IN-PROGRESS', 'CANCELLED', 'COMPLETED' ]
+  },
   startingTime : {
     type: Date
   },
