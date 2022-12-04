@@ -378,11 +378,137 @@ async function getPostComments(req, res) {
   }
 }
 
+async function fetchUserPosts(req, res) {
+  try {
+    let {
+      profileId,
+      pageNumber: page = 1
+    } = req.body;
+
+    const pageSize = 10;
+    const userId = req.user._id;
+    const profile =  Mongoose.Types.ObjectId(profileId);
+    const basicQuery = [
+      {
+        $match: {
+          user: profile
+        }
+      },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'postId',
+          as: 'likes'
+        }
+      },
+      {
+        $addFields: {
+          totalLikes: { $size: '$likes' }
+        }
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          localField: '_id',
+          foreignField: 'postId',
+          as: 'comments'
+        }
+      },
+      {
+        $addFields: {
+          totalComments: { $size: '$comments' }
+        }
+      },
+      {
+        $addFields: {
+          totalReactions: { $sum: ['$totalComments','$totalLikes' ] }
+        }
+      },
+      {
+        $addFields: {
+          isLikePost: {
+            $in: [
+              userId,
+              '$likes.userId'
+            ]
+          }
+        } 
+      },
+      {
+        $lookup: {
+          from: 'cases',
+          localField: '_id',
+          foreignField: 'post',
+          as: 'cases'
+        }
+      },
+      {
+        $addFields: {
+          isDefendPost: {
+            $in: [
+              userId,
+              '$cases.attorney'
+            ]
+          }
+        } 
+      }
+    ];
+
+    let posts = null;
+    let postsCount = 0;
+    if (page == -1) {
+      postsCount = await Post.aggregate(basicQuery);
+      const paginateQuery = [
+        { $sort: sortOrder },
+        { $skip: pageSize * (postsCount.length > 10 ? page - 1 : 0) },
+        { $limit: pageSize }
+      ];
+      posts = await Post.aggregate(basicQuery.concat(paginateQuery));
+      await Post.populate(posts,
+        {
+          path: 'user',
+          select: '_id firstName lastName avatar role',
+        });
+    } else {
+      postsCount = await Post.aggregate(basicQuery);
+      const paginateQuery = [
+        { $sort: {created: 1} },
+        { $skip: pageSize * (postsCount.length > pageSize ? page - 1 : 0) },
+        { $limit: pageSize }
+      ];
+      posts = await Post.aggregate(basicQuery.concat(paginateQuery));
+      await Post.populate(posts,
+        {
+          path: 'user',
+          select: '_id firstName lastName avatar role',
+        });
+    } 
+    return res.status(200).json({
+      success: true,
+      metadata: {
+        total: postsCount.length,
+        page,
+        pages: postsCount.length > 0 ? Math.ceil(postsCount.length / pageSize) : 0
+      },
+      data: posts
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      data: null,
+      message: 'Your request could not be processed. Please try again.'
+    });
+  }
+}
+
 module.exports = {
   createPost,
   getDetailPost,
   fetchNewsFeed,
   getPostComments,
   deletePost,
-  updatePost
+  updatePost,
+  fetchUserPosts
 };
