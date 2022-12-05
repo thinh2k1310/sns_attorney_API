@@ -25,7 +25,7 @@ async function updateUserProfile(req, res){
 
 async function getProfile(req, res){
     try {
-      const userId = req.body.id;
+      const userId = req.params.id;
       const userDoc = await User.findById(userId);
   
       return res.status(200).json({
@@ -33,6 +33,7 @@ async function getProfile(req, res){
         data: userDoc
       });
     } catch (error) {
+      console.log(error);
       return res.status(400).json({
         error: 'Your request could not be processed. Please try again.'
       });

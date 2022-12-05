@@ -5,7 +5,7 @@ const auth = require('../../middleware/auth');
 
 const userRouter = express.Router();
 
-userRouter.get('/profile', auth, userController.getProfile);
+userRouter.get('/:id', auth, userController.getProfile);
 userRouter.put('/profile', auth, userController.updateUserProfile);
 
 

@@ -164,6 +164,9 @@ async function getAllCases(req, res) {
             select: '_id content user mediaUrl'
         })
 
+        requests.sort(function(x, y){
+            return y.created - x.created;
+          })
                                     
         if (requests != null) {
             return res.status(200).json({

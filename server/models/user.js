@@ -44,6 +44,9 @@ const UserSchema = new Schema({
   address: {
     type: String,
   },
+  work: {
+    type: String,
+  },
   degree: [{
     type: String
   }],
