@@ -1,4 +1,8 @@
+const cloudinary = require('../../services/cloudinary')
+const fs = require('fs');
+const { promisify } = require('util')
 
+const unlinkAsync = promisify(fs.unlink) 
 const User = require('../../models/user');
 
 async function updateUserProfile(req, res){
@@ -40,8 +44,71 @@ async function getProfile(req, res){
     }
   }
 
+  async function updateCover(req, res) {
+    try {
+      const user = req.user._id;
+      const media = req.files[0];
+  
+      const uploader = async (path) => await cloudinary.uploads(path, "Images");
+  
+      let cover = "";
+  
+      if (media) {
+        const { path } = media;
+        const newPath = await uploader(path);
+        cover = newPath.url;
+        await unlinkAsync(req.files[0].path);
+      }
+    const updatedUser = await User.findOneAndUpdate({_id: user}, {cover: cover}, {new: true});
+  
+      return res.status(200).json({
+        success: true,
+        message: 'Change cover successfully!',
+        data: updatedUser
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        success: false,
+        message: "Your request could not be processed. Please try again.",
+      });
+    }
+  } 
+
+  async function updateAvatar(req, res) {
+    try {
+      const user = req.user._id;
+      const media = req.files[0];
+  
+      const uploader = async (path) => await cloudinary.uploads(path, "Images");
+  
+      let avatar = "";
+  
+      if (media) {
+        const { path } = media;
+        const newPath = await uploader(path);
+        avatar = newPath.url;
+        await unlinkAsync(req.files[0].path);
+      }
+    const updatedUser = await User.findOneAndUpdate({_id: user}, {avatar: avatar}, {new: true});
+  
+      return res.status(200).json({
+        success: true,
+        message: 'Change avatar successfully!',
+        data: updatedUser
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        success: false,
+        message: "Your request could not be processed. Please try again.",
+      });
+    }
+  } 
 
 module.exports = {
     getProfile,
-    updateUserProfile
+    updateUserProfile,
+    updateCover,
+    updateAvatar
 }
