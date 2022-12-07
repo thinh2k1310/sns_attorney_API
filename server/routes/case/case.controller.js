@@ -263,7 +263,7 @@ async function getCaseDetail(req,res) {
         })
         .populate({
             path: 'post',
-            select: '_id content user mediaUrl'
+            select: '_id content user mediaUrl category'
         });
 
 

@@ -50,6 +50,11 @@ const UserSchema = new Schema({
   degree: [{
     type: String
   }],
+  categories : [{
+    type: String,
+    enum: ['Constitutional', 'Administrative', 'Finance', 'Land', 'Civil', 'Labour', 
+    'Marriage and Family', 'Criminal', 'Criminal Procedure', 'Civil Procedure', 'Economic', 'International'] 
+  }],
   summary: {
     type: String
   },

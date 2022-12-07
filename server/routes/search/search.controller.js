@@ -261,8 +261,74 @@ async function searchAll(req, res){
     }
   }
 
+  async function getAttorneys(req, res) {
+    try {
+      const category = req.body.category;
+  
+      const pageSize = 10;
+      const basicQuery = [
+        {
+          $lookup: {
+            from: 'reviews',
+            localField: '_id',
+            foreignField: 'attorney',
+            as: 'reviews'
+          }
+        },
+        {
+          $addFields: {
+            totalReviews: { $size: '$reviews' }
+          }
+        },
+        // {
+        //   $addFields: {
+        //     totalRatings: { $sum: "$reviews.point" } 
+        //   }
+        // },
+        {
+          $addFields: {
+            rating: { $avg : '$reviews.point' }
+          }
+        },
+        {
+          $match : { role: "ROLE_ATTORNEY" }
+        }
+      ];
+      
+      if(category != null){
+        basicQuery.push({
+          $match : { categories : {
+            $in: [category]
+          }
+        }
+        });
+      }
+      let users = null;
+      let usersCount = 0;
+      
+        // usersCount = await User.aggregate(basicQuery);
+        // const paginateQuery = [
+        //   { $skip: pageSize * (usersCount.length > pageSize ? page - 1 : 0) },
+        //   { $limit: pageSize }
+        // ];
+      users = await User.aggregate(basicQuery);
+      return res.status(200).json({
+        success : true,
+        data : users
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        success : false,
+        data : null,
+        message : 'Your request could not be processed. Please try again.'
+      });
+    }
+  }
+
   module.exports = {
     searchAll,
     searchPost,
-    searchUser
+    searchUser,
+    getAttorneys
   }

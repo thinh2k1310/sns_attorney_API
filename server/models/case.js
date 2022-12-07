@@ -34,6 +34,10 @@ const CaseSchema = new Schema({
     default: 'IN-PROGRESS',
     enum: ['IN-PROGRESS', 'CANCELLED', 'COMPLETED' ]
   },
+  isReviewed : {
+    type: Boolean,
+    default: false
+  },
   startingTime : {
     type: Date
   },

@@ -22,6 +22,11 @@ const PostSchema = new Schema({
     type: Boolean,
     default: false
   },
+  category : {
+    type: String,
+    enum: ['Constitutional', 'Administrative', 'Finance', 'Land', 'Civil', 'Labour', 
+    'Marriage and Family', 'Criminal', 'Criminal Procedure', 'Civil Procedure', 'Economic', 'International'] 
+  },
   type: {
     type: String,
     required: true,

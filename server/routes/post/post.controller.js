@@ -224,6 +224,7 @@ async function fetchNewsFeed(req, res) {
     let {
       sortOrder,
       type,
+      category,
       pageNumber: page = 1
     } = req.body;
 
@@ -296,6 +297,14 @@ async function fetchNewsFeed(req, res) {
       basicQuery.push({
         $match: {
           type: type
+        }
+      });
+    }
+
+    if (category != null) {
+      basicQuery.push({
+        $match: {
+          category: category
         }
       });
     }
