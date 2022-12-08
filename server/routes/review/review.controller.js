@@ -7,8 +7,6 @@ const User = require('../../models/user');
 
 async function reviewCase (req, res) {
     try {
-        const client = req.body.client;
-        const attorney = req.body.attorney;
         const cases = req.body.cases;
         const point = req.body.point;
         const content = req.body.content;
@@ -21,6 +19,9 @@ async function reviewCase (req, res) {
                 message: 'Already review this case'
               });
         }
+
+        const client = checkCase.customer;
+        const attorney = checkCase.attorney;
 
         const review = new Review({
             client,
