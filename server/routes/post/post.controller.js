@@ -18,6 +18,7 @@ async function createPost(req, res) {
     const content = req.body.content;
     const media = req.files[0];
     const type = req.body.type;
+    const category = req.body.category;
 
     const uploader = async (path) => await cloudinary.uploads(path, "Images");
 
@@ -38,7 +39,8 @@ async function createPost(req, res) {
       content,
       mediaUrl,
       mediaId,
-      type
+      type,
+      category
     });
 
     const savedPost = await post.save();
@@ -224,12 +226,11 @@ async function fetchNewsFeed(req, res) {
     let {
       sortOrder,
       type,
-      category,
+      categories,
       pageNumber: page = 1
     } = req.body;
 
     const pageSize = 10;
-    const typeFilter = type ? { type } : {};
     const userId = req.user._id;
     const basicQuery = [
       {
@@ -301,11 +302,12 @@ async function fetchNewsFeed(req, res) {
       });
     }
 
-    if (category != null) {
+    if (categories != null) {
       basicQuery.push({
-        $match: {
-          category: category
+        $match : { category : {
+          $in: categories
         }
+      }
       });
     }
     let posts = null;
