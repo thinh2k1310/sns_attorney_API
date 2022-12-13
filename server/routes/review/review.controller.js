@@ -52,7 +52,10 @@ async function getAllReviews(req,res) {
     try {
         const attorney = req.params.userId;
 
-        const reviews = await Review.find({attorney: attorney});
+        const reviews = await  Review.find({attorney: attorney}).populate({
+            path: 'client',
+            select: '_id lastName firstName avatar'
+        });
         let sum = 0;
         function myFunction(value, index, array) {
             sum += value.point;

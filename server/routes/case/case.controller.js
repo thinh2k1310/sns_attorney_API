@@ -1,6 +1,7 @@
 const Case = require('../../models/case');
 const User = require('../../models/user');
 const Post = require('../../models/post');
+const CaseComment = require('../../models/caseComment');
 
 
 async function sendDefenceRequest(req,res) {
@@ -167,11 +168,17 @@ async function getAllCases(req, res) {
         requests.sort(function(x, y){
             return y.created - x.created;
           })
+
+        const cancelledCases = requests.filter( item => item.status == "CANCELLED");
+        const completedCases = requests.filter( item => item.status == "COMPLETED");
+        const inProgressCases = requests.filter( item => item.status == "IN-PROGRESS");
                                     
         if (requests != null) {
             return res.status(200).json({
                 success: true,
-                data: requests
+                inProgressCases: inProgressCases,
+                completedCases: completedCases,
+                cancelledCases: cancelledCases
               });
         }
     } catch (error) {
@@ -287,6 +294,33 @@ async function getCaseDetail(req,res) {
     }
 }
 
+async function getCaseComments(req, res) {
+    try {
+      const caseId = req.params.id;
+      const userId = req.user._id;
+      const comments = await CaseComment.find({ caseId: caseId }).populate({
+        path: 'userId',
+        select: '_id lastName firstName avatar'
+      })
+  
+      comments.sort(function(x, y){
+        return x.created - y.created;
+      })
+      console.log(comments);
+      return res.status(200).json({
+        success: true,
+        data: comments
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        success: false,
+        data: null,
+        message: 'Your request could not be processed. Please try again.'
+      });
+    }
+  }
+
 module.exports = {
     sendDefenceRequest,
     acceptCase,
@@ -295,5 +329,6 @@ module.exports = {
     getAllCases,
     cancelCase,
     completeCase,
-    getCaseDetail
+    getCaseDetail,
+    getCaseComments
 }
