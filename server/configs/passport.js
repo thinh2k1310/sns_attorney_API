@@ -19,11 +19,11 @@ passport.use(
   new JwtStrategy(opts, (payload, done) => {
     User.findById(payload.id)
       .then(user => {
-        if (user) {
-          return done(null, user);
+        if (!user || user.active === false) { 
+          return done(null, false);
         }
 
-        return done(null, false);
+        return done(null, user);
       })
       .catch(err => {
         return done(err, false);
