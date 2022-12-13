@@ -62,6 +62,10 @@ const prepareTemplate = (type, data) => {
       message = template.validateOTP(data);
       break;
 
+    case 'newModerator':
+      message = template.newModerator(data);
+      break;
+
     case 'sendOTP':
       message = template.sendOTP(data);
       break;

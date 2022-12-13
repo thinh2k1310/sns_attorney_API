@@ -6,6 +6,7 @@ const router = express.Router();
 const authRouter = require('./auth/auth.route');
 const postRouter = require('./post/post.route');
 const userRouter = require('./user/user.route');
+const moderatorRouter = require('./moderator/moderator.route');
 const likeRouter = require('./like/like.route');
 const commentRouter = require('./comment/comment.route');
 const searchRouter = require('./search/search.route');
@@ -26,6 +27,6 @@ router.use('/case', caseRouter);
 router.use('/review', reviewRouter);
 router.use('/caseComment', caseCommentRouter);
 router.use('/reports',reportRouter);
-
+router.use('/moderators', moderatorRouter);
 
 module.exports = router;

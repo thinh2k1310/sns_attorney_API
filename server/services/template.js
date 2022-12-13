@@ -43,6 +43,23 @@ function resetEmail(user, otp){
     return message;
   }
 
+  function newModerator(data) {
+    const message = {
+      subject: 'Let\'s join with Attorney!',
+      text:
+        `Hi ${data.firstName}!\n`+
+        `You have been invited to join as moderator.\n`+
+        `Here is your account information:\n\n`+
+        `Email: ${data.email}\n`+
+        `Password: ${data.password}\n\n`+
+        `Please change your password after login.\n\n`+
+        `Sincerely,\n\n`+
+        `Customer Service.`
+    }
+
+    return message;
+  }
+
   function validateOTP(user){
     const message = {
       subject: 'Verify Your Email Address',
@@ -73,5 +90,6 @@ function resetEmail(user, otp){
       confirmResetPasswordEmail,
       signupEmail,
       validateOTP,
-      sendOTP
+      sendOTP,
+      newModerator
   }
