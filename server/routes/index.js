@@ -13,6 +13,7 @@ const friendRouter = require('./friend/friend.route');
 const caseRouter = require('./case/case.route');
 const reviewRouter = require('./review/review.route');
 const caseCommentRouter = require('./caseComment/caseComment.route');
+const reportRouter = require('./report/report.route');
 
 router.use('/auth', authRouter);
 router.use('/post', postRouter);
@@ -24,6 +25,7 @@ router.use('/friend', friendRouter);
 router.use('/case', caseRouter);
 router.use('/review', reviewRouter);
 router.use('/caseComment', caseCommentRouter);
+router.use('/reports',reportRouter);
 
 
 module.exports = router;
