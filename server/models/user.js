@@ -39,7 +39,7 @@ const UserSchema = new Schema({
   role: {
     type: String,
     default: 'ROLE_USER',
-    enum: ['ROLE_USER', 'ROLE_ATTORNEY', 'ROLE_ADMIN']
+    enum: ['ROLE_USER', 'ROLE_ATTORNEY', 'ROLE_ADMIN', 'ROLE_MODERATOR']
   },
   address: {
     type: String,
@@ -80,6 +80,10 @@ const UserSchema = new Schema({
   created: {
     type: Date,
     default: Date.now
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 });
 
