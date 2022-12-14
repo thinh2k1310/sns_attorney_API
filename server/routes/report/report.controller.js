@@ -114,11 +114,15 @@ async function getSummaryReport(req, res) {
             if (summary[report.reportedUser._id] == null) {
                 summary[report.reportedUser._id] = {
                     total: 1,
-                    reportedUser: new Set([report.reportedUser._id])
+                    reportedUser: new Set([report.reportedUser._id]),
+                    firstDate: report.created,
+                    lastDate: report.created
                 }
             } else {
                 summary[report.reportedUser._id].total += 1;
                 summary[report.reportedUser._id].reportedUser.add(report.reportedUser._id);
+                summary[report.reportedUser._id].firstDate = Math.min(summary[report.reportedUser._id].firstDate, report.created);
+                summary[report.reportedUser._id].lastDate = Math.max(summary[report.reportedUser._id].lastDate, report.created);
             }
         });
 
@@ -127,6 +131,8 @@ async function getSummaryReport(req, res) {
             summaryData.push({
                 totalReport: summary[key].total,
                 totalReportingUser: summary[key].reportedUser.size,
+                firstDate: new Date(summary[key].firstDate).toLocaleDateString(),
+                lastDate: new Date(summary[key].lastDate).toLocaleDateString(),
             });
         }
  
