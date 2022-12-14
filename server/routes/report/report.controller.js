@@ -106,7 +106,7 @@ async function getSummaryReport(req, res) {
             assignedModerator: userId
         }).populate({
             path: 'reportedUser',
-            select: '_id'
+            select: '_id firstName lastName'
         });
 
         const summary = {};
