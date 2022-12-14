@@ -113,14 +113,16 @@ async function getSummaryReport(req, res) {
         reports.forEach(report => {
             if (summary[report.reportedUser._id] == null) {
                 summary[report.reportedUser._id] = {
+                    firstName: report.reportedUser.firstName,
+                    lastName: report.reportedUser.lastName,
                     total: 1,
-                    reportedUser: new Set([report.reportedUser._id]),
+                    reportingUsers: new Set([report.reportingUser]),
                     firstDate: report.created,
                     lastDate: report.created
                 }
             } else {
                 summary[report.reportedUser._id].total += 1;
-                summary[report.reportedUser._id].reportedUser.add(report.reportedUser._id);
+                summary[report.reportedUser._id].reportingUsers.add(report.reportingUser);
                 summary[report.reportedUser._id].firstDate = Math.min(summary[report.reportedUser._id].firstDate, report.created);
                 summary[report.reportedUser._id].lastDate = Math.max(summary[report.reportedUser._id].lastDate, report.created);
             }
@@ -129,8 +131,10 @@ async function getSummaryReport(req, res) {
         const summaryData = [];
         for (const key in summary) {
             summaryData.push({
+                firstName: summary[key].firstName,
+                lastName: summary[key].lastName,
                 totalReport: summary[key].total,
-                totalReportingUser: summary[key].reportedUser.size,
+                totalReportingUser: summary[key].reportingUsers.size,
                 firstDate: new Date(summary[key].firstDate).toLocaleDateString(),
                 lastDate: new Date(summary[key].lastDate).toLocaleDateString(),
             });
