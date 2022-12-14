@@ -131,6 +131,7 @@ async function getSummaryReport(req, res) {
         const summaryData = [];
         for (const key in summary) {
             summaryData.push({
+                reportedUserId: key,
                 firstName: summary[key].firstName,
                 lastName: summary[key].lastName,
                 totalReport: summary[key].total,
