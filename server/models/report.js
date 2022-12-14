@@ -9,6 +9,10 @@ const ReportSchema = new Schema({
     ref: 'User',
     required: true
   },
+  assignedModerator : {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
   reportedUser : {
     type: Schema.Types.ObjectId,
     ref: 'User',

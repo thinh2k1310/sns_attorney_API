@@ -7,6 +7,7 @@ async function report(req,res) {
     try {
         const reportingUser = req.body.reportingUser;
         const reportedUser = req.body.reportedUser;
+        const assignedModerator = await User.aggregate([{ $match: { role: "ROLE_MODERATOR" } }, { $sample: { size: 1 } }]);
         const type = req.body.type;
         const post = req.body.post;
         const comment = req.body.comment;
@@ -16,6 +17,7 @@ async function report(req,res) {
             report = new Report({
                 reportingUser,
                 reportedUser,
+                assignedModerator: "638363d814f9029afbe50951",
                 type,
                 comment,
                 problem
@@ -24,6 +26,7 @@ async function report(req,res) {
             report = new Report({
                 reportingUser,
                 reportedUser,
+                assignedModerator: "638363d814f9029afbe50951",
                 type,
                 post,
                 problem
@@ -95,6 +98,53 @@ async function getAllReport(req, res) {
     }
 }
 
+async function getSummaryReport(req, res) {
+    try {
+        const userId = req.user.id;
+        console.log(userId)
+        const reports = await Report.find({
+            assignedModerator: userId
+        }).populate({
+            path: 'reportedUser',
+            select: '_id'
+        });
+
+        const summary = {};
+        reports.forEach(report => {
+            if (summary[report.reportedUser._id] == null) {
+                summary[report.reportedUser._id] = {
+                    total: 1,
+                    reportedUser: new Set([report.reportedUser._id])
+                }
+            } else {
+                summary[report.reportedUser._id].total += 1;
+                summary[report.reportedUser._id].reportedUser.add(report.reportedUser._id);
+            }
+        });
+
+        const summaryData = [];
+        for (const key in summary) {
+            summaryData.push({
+                totalReport: summary[key].total,
+                totalReportingUser: summary[key].reportedUser.size,
+            });
+        }
+ 
+        if (reports != null) {
+            return res.status(200).json({
+                success: true,
+                data: summaryData
+              });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            success: false,
+            message: "Your request could not be processed. Please try again.",
+          });
+    }  
+}
+
 async function getAllUserReport(req, res) {
     try {
         const reportedUser = req.params.id;
@@ -128,5 +178,6 @@ module.exports = {
     report,
     getAllReport,
     getAllUserReport,
-    deleteUserReport
+    deleteUserReport,
+    getSummaryReport
 }
