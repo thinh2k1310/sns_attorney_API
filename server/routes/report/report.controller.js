@@ -17,7 +17,7 @@ async function report(req,res) {
             report = new Report({
                 reportingUser,
                 reportedUser,
-                assignedModerator: "638363d814f9029afbe50951",
+                assignedModerator: assignedModerator[0]._id,
                 type,
                 comment,
                 problem
@@ -26,7 +26,7 @@ async function report(req,res) {
             report = new Report({
                 reportingUser,
                 reportedUser,
-                assignedModerator: "638363d814f9029afbe50951",
+                assignedModerator: assignedModerator[0]._id,
                 type,
                 post,
                 problem
