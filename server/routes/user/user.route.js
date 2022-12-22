@@ -6,6 +6,7 @@ const upload = require('../../services/multer');
 
 const userRouter = express.Router();
 
+userRouter.get('/summary', auth, userController.getAllUsers);
 userRouter.get('/:id', auth, userController.getProfile);
 userRouter.post('/:id/block', auth, userController.blockUser);
 userRouter.put('/profile', auth, userController.updateUserProfile);

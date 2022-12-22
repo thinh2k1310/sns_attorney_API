@@ -4,6 +4,40 @@ const { promisify } = require('util')
 
 const unlinkAsync = promisify(fs.unlink) 
 const User = require('../../models/user');
+const keys = require('../../configs/keys');
+
+async function getAllUsers(_ , res){
+  try {
+    const users = await User.find();
+    const groupUsers = {};
+    for (const user of users) {
+      switch (user.role) {
+        case 'ROLE_USER':
+          groupUsers['User'] = groupUsers['User'] ? groupUsers['User'] + 1 : 1;
+          break;
+        case 'ROLE_ATTORNEY':
+          groupUsers['Attorney'] = groupUsers['Attorney'] ? groupUsers['Attorney'] + 1 : 1;
+          break;
+        default:
+          groupUsers['Admin'] = groupUsers['Admin'] ? groupUsers['Admin'] + 1 : 1;
+          break;
+      }
+    }
+    return res.status(200).json({
+      success: true,
+      data: {
+      key: Object.keys(groupUsers),
+      value: Object.values(groupUsers)
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      error: 'Your request could not be processed. Please try again.'
+    });
+  }
+}
 
 async function updateUserProfile(req, res){
   try {
@@ -132,5 +166,6 @@ module.exports = {
     updateUserProfile,
     updateCover,
     updateAvatar,
-    blockUser
+    blockUser,
+    getAllUsers
 }
