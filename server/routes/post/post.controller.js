@@ -518,13 +518,13 @@ async function summaryPosts(_, res) {
   try {
     const posts = await Post.find();
     var seventhDay = new Date();
-    seventhDay.setDate(seventhDay.getDate() - 30);
+    seventhDay.setDate(seventhDay.getDate() - 7);
     var filteredData = posts.filter((post) => {
       return new Date(post.created).getTime() >= seventhDay.getTime();
     });
     var daysSorted = [];
 
-    for(var i = 0; i < 30; i++) {
+    for(var i = 0; i < 7; i++) {
       var today = new Date();
       var newDate = new Date(today.setDate(today.getDate() - i));
       var month = newDate.getUTCMonth(); //months from 1-12
@@ -536,19 +536,20 @@ async function summaryPosts(_, res) {
     daysSorted.reverse();
 
     let groups = daysSorted.reduce((groups, day) => {
-      groups[day] = 1;
+      groups[day] = 10;
       return groups;
     }, {});
-    groups = filteredData.reduce((_, post) => {
-      const postDate = post.created;
-      var month = postDate.getUTCMonth();
-      var day = postDate.getUTCDate();
-      var year = postDate.getUTCFullYear();
-      const date = day + "/" + month + "/" + year;
-      groups[date] = groups[date] ? groups[date] + 1 : 10;
-      return groups;
-    }, {});
-    // Edit: to add it in the array format instead
+    if (filteredData.length){
+      groups = filteredData.reduce((_, post) => {
+        const postDate = post.created;
+        var month = postDate.getUTCMonth();
+        var day = postDate.getUTCDate();
+        var year = postDate.getUTCFullYear();
+        const date = day + "/" + month + "/" + year;
+        groups[date] =  groups[date] + 1;
+        return groups;
+      }, {});
+    }
     const groupArrays = Object.keys(groups).map((date) => {
       return {
         date,

@@ -141,6 +141,61 @@ async function getAllDefenceRequests(req, res) {
     }
 }
 
+async function summaryCases(_, res) {
+    try {
+      const cases = await Case.find();
+      var seventhDay = new Date();
+      seventhDay.setDate(seventhDay.getDate() - 7);
+      var filteredData = cases.filter((cases) => {
+        return new Date(cases.created).getTime() >= seventhDay.getTime();
+      });
+      var daysSorted = [];
+  
+      for(var i = 0; i < 7; i++) {
+        var today = new Date();
+        var newDate = new Date(today.setDate(today.getDate() - i));
+        var month = newDate.getUTCMonth(); //months from 1-12
+        var day = newDate.getUTCDate();
+        var year = newDate.getUTCFullYear();
+        const date = day + "/" + month + "/" + year;
+        daysSorted.push(date);
+      }
+      daysSorted.reverse();
+  
+      let groups = daysSorted.reduce((groups, day) => {
+        groups[day] = 5;
+        return groups;
+      }, {});
+      if (filteredData.length){
+        groups = filteredData.reduce((_, cases) => {
+          const caseDate = cases.created;
+          var month = caseDate.getUTCMonth();
+          var day = caseDate.getUTCDate();
+          var year = caseDate.getUTCFullYear();
+          const date = day + "/" + month + "/" + year;
+          groups[date] =  groups[date] + 1;
+          return groups;
+        }, {});
+      }
+      const groupArrays = Object.keys(groups).map((date) => {
+        return {
+          date,
+          count: groups[date]
+        };
+      });
+      return res.status(200).json({
+        success: true,
+        data: groupArrays
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({
+        success: false,
+        message: 'Your request could not be processed. Please try again.'
+      });
+    }
+  }
+
 async function getAllCases(req, res) {
     try {
         const userId = req.user._id;
@@ -330,5 +385,6 @@ module.exports = {
     cancelCase,
     completeCase,
     getCaseDetail,
-    getCaseComments
+    getCaseComments,
+    summaryCases
 }
