@@ -514,6 +514,60 @@ async function fetchUserPosts(req, res) {
   }
 }
 
+async function summaryPosts(_, res) {
+  try {
+    const posts = await Post.find();
+    var seventhDay = new Date();
+    seventhDay.setDate(seventhDay.getDate() - 30);
+    var filteredData = posts.filter((post) => {
+      return new Date(post.created).getTime() >= seventhDay.getTime();
+    });
+    var daysSorted = [];
+
+    for(var i = 0; i < 30; i++) {
+      var today = new Date();
+      var newDate = new Date(today.setDate(today.getDate() - i));
+      var month = newDate.getUTCMonth(); //months from 1-12
+      var day = newDate.getUTCDate();
+      var year = newDate.getUTCFullYear();
+      const date = day + "/" + month + "/" + year;
+      daysSorted.push(date);
+    }
+    daysSorted.reverse();
+
+    let groups = daysSorted.reduce((groups, day) => {
+      groups[day] = 1;
+      return groups;
+    }, {});
+    groups = filteredData.reduce((_, post) => {
+      const postDate = post.created;
+      var month = postDate.getUTCMonth();
+      var day = postDate.getUTCDate();
+      var year = postDate.getUTCFullYear();
+      const date = day + "/" + month + "/" + year;
+      groups[date] = groups[date] ? groups[date] + 1 : 10;
+      return groups;
+    }, {});
+    // Edit: to add it in the array format instead
+    const groupArrays = Object.keys(groups).map((date) => {
+      return {
+        date,
+        count: groups[date]
+      };
+    });
+    return res.status(200).json({
+      success: true,
+      data: groupArrays
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      message: 'Your request could not be processed. Please try again.'
+    });
+  }
+}
+
 module.exports = {
   createPost,
   getDetailPost,
@@ -521,5 +575,6 @@ module.exports = {
   getPostComments,
   deletePost,
   updatePost,
-  fetchUserPosts
+  fetchUserPosts,
+  summaryPosts
 };
