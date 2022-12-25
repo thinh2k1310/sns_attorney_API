@@ -11,7 +11,8 @@ reportRouter.post('',auth, reportController.report);
 reportRouter.get('',auth, reportController.getAllReport);
 reportRouter.get('/summary', auth, reportController.getSummaryReport);
 reportRouter.get('/:id',auth, reportController.getAllUserReport);
-reportRouter.delete('/:id',auth, reportController.deleteAReport);
+reportRouter.delete('/:id/accept',auth, reportController.acceptReport);
+reportRouter.delete('/:id/reject',auth, reportController.rejectReport);
 reportRouter.delete('/all/:id',auth, reportController.deleteUserReport);
 
 module.exports = reportRouter;

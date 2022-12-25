@@ -106,12 +106,7 @@ async function getAllDefenceRequests(req, res) {
     try {
         const userId = req.user._id;
         const checkRole = await User.findOne({_id: userId});
-        let filter = null;
-        if (checkRole.role == "ROLE_ATTORNEY") {
-            filter = {attorney : userId.toString(), status : 'SENT_REQUEST'}
-        } else {
-            filter = {customer : userId.toString(), status : 'SENT_REQUEST'}
-        }
+        let filter = {customer : userId.toString(), status : 'SENT_REQUEST'};
         const requests = await Case.find(filter)
                                             .populate({
                                                 path: 'attorney',
@@ -249,6 +244,13 @@ async function cancelCase(req, res) {
     try {
         const caseId = req.params.caseId;
         const role = req.user.role;
+        let checkCase = await Case.findOne({_id: caseId});
+        if (checkCase.status == "COMPLETED") {
+            return res.status(400).json({
+                success: false,
+                message: "This case has been completed.",
+              });
+        }
         if (role == "ROLE_USER") {
             await Case.updateOne({_id : caseId}, {
                 customerStatus: 'CANCELLED'
@@ -281,6 +283,13 @@ async function completeCase(req, res) {
     try {
         const caseId = req.params.caseId;
         const role = req.user.role;
+        let checkCase = await Case.findOne({_id: caseId});
+        if (checkCase.status == "CANCELLED") {
+            return res.status(400).json({
+                success: false,
+                message: "This case has been cancelled.",
+              });
+        }
         let updatedCase = null;
         if (role == "ROLE_USER") {
             updatedCase = await Case.findOneAndUpdate({_id : caseId}, {

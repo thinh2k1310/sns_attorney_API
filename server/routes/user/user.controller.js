@@ -4,6 +4,7 @@ const { promisify } = require('util')
 
 const unlinkAsync = promisify(fs.unlink) 
 const User = require('../../models/user');
+const Report = require('../../models/report');
 const keys = require('../../configs/keys');
 
 async function getAllUsers(_ , res){
@@ -146,6 +147,12 @@ async function getProfile(req, res){
       const query = { _id: userId };
 
       const userDoc = await User.findOneAndUpdate(query, {active: false});
+
+      const deletedReports = await Report.deleteMany({reportedUser: userId});
+
+      if (userDoc != null) {
+        await Report.deleteMany({reportedUser: userId});
+      }
 
       return res.status(200).json({
         success: true,

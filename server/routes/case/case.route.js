@@ -15,7 +15,7 @@ caseRouter.get('/request/', auth, caseController.getAllDefenceRequests);
 caseRouter.get('/list', auth, caseController.getAllCases);
 caseRouter.get('/summary', auth, caseController.summaryCases);
 caseRouter.put('/:caseId/cancel', auth, caseController.cancelCase);
-caseRouter.put('/:caseId/complete', auth, role.checkRole(role.ROLES.User), caseController.completeCase);
+caseRouter.put('/:caseId/complete', auth, caseController.completeCase);
 caseRouter.get('/:caseId', auth, caseController.getCaseDetail);
 caseRouter.get('/:id/comments', auth, caseController.getCaseComments);
 

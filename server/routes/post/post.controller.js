@@ -484,7 +484,7 @@ async function fetchUserPosts(req, res) {
     } else {
       postsCount = await Post.aggregate(basicQuery);
       const paginateQuery = [
-        { $sort: {created: 1} },
+        { $sort: {created: - 1} },
         { $skip: pageSize * (postsCount.length > pageSize ? page - 1 : 0) },
         { $limit: pageSize }
       ];

@@ -61,6 +61,9 @@ async function getAllReviews(req,res) {
             sum += value.point;
         }   
         reviews.forEach(myFunction);
+        reviews.sort(function(x, y){
+            return y.created - x.created;
+          })
 
         return res.status(200).json({
             success: true,

@@ -70,11 +70,39 @@ async function deleteUserReport(req, res) {
     }
 }
 
-async function deleteAReport(req, res) {
+async function rejectReport(req, res) {
     try {
-        const reportedId = req.params.id;
+        const reportId = req.params.id;
 
-        const deletedReport = await Report.deleteOne({_id: reportedId});
+        const deletedReport = await Report.deleteOne({_id: reportId});
+
+        if (deletedReport != null) {
+            return res.status(200).json({
+                success: true,
+                message: 'Delete report successfully!'
+              });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            success: false,
+            message: "Your request could not be processed. Please try again.",
+          });
+    }
+}
+
+async function acceptReport(req, res) {
+    try {
+        const reportId = req.params.id;
+
+        const report = await Report.findOne({_id: reportId});
+
+        if (report.post != null) {
+            await Post.deleteOne({_id : report.post});
+        } else if (report.comment != null) {
+            await Comment.deleteOne({_id : report.comment});
+        }
+        const deletedReport = await Report.deleteOne({_id: reportId});
 
         if (deletedReport != null) {
             return res.status(200).json({
@@ -212,5 +240,6 @@ module.exports = {
     getAllUserReport,
     deleteUserReport,
     getSummaryReport,
-    deleteAReport
+    rejectReport,
+    acceptReport
 }
