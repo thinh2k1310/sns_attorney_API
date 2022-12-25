@@ -7,7 +7,7 @@ async function report(req,res) {
     try {
         const reportingUser = req.body.reportingUser;
         const reportedUser = req.body.reportedUser;
-        const assignedModerator = await User.aggregate([{ $match: { role: "ROLE_MODERATOR" } }, { $sample: { size: 1 } }]);
+        const assignedModerator = await User.aggregate([{ $match: { role: "ROLE_ADMIN" } }, { $sample: { size: 1 } }]);
         const type = req.body.type;
         const post = req.body.post;
         const comment = req.body.comment;
@@ -59,6 +59,27 @@ async function deleteUserReport(req, res) {
             return res.status(200).json({
                 success: true,
                 message: 'Delete reports successfully!'
+              });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            success: false,
+            message: "Your request could not be processed. Please try again.",
+          });
+    }
+}
+
+async function deleteAReport(req, res) {
+    try {
+        const reportedId = req.params.id;
+
+        const deletedReport = await Report.deleteOne({_id: reportedId});
+
+        if (deletedReport != null) {
+            return res.status(200).json({
+                success: true,
+                message: 'Delete report successfully!'
               });
         }
     } catch (error) {
@@ -190,5 +211,6 @@ module.exports = {
     getAllReport,
     getAllUserReport,
     deleteUserReport,
-    getSummaryReport
+    getSummaryReport,
+    deleteAReport
 }
